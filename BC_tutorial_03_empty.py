@@ -1,9 +1,5 @@
-import code
 import numpy as np
 import cv2
-import math
-import operator
-
 
 cap = cv2.VideoCapture(0)
 
@@ -15,8 +11,6 @@ codec = cap.get(cv2.CAP_PROP_CODEC_PIXEL_FORMAT)
 print("height : ", height)
 print("width: ", width)
 print("codec: ", codec)
-
-cv2.namedWindow("webcam picture", cv2.WINDOW_FREERATIO)
 
 while(True):
     # ret is a boolean that returns true if the frame is available.
@@ -31,12 +25,14 @@ while(True):
         img[:height//2, width//2:] = cv2.flip(smaller_frame, 1)
         img[height//2:, width//2:] = cv2.flip(smaller_frame, -1)
     # Display the resulting frame
+    cv2.line(img, (0, height//2), (width, height//2), (255,0,0), thickness=2)
+    cv2.line(img, (width//2, 0), (width//2, height), (255,0,0), thickness=2)
     cv2.imshow('frame', img)
       
     # the 'q' button is set as the
     # quitting button you may use any
     # desired button of your choice
-    if cv2.waitKey(10) & 0xFF == ord('q'):
+    if cv2.waitKey(10) == ord('q'):
         break
   
 # After the loop release the cap object
