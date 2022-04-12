@@ -34,7 +34,19 @@ def click_frame(event, x, y, flags, param):
 clicked_points = []
 
 
+def get_window_frame(points):
+    x = 0
+    y = 0
+    for point in points:
+        if point[0] > x:
+            x = point[0]
+        if point[1] > y:
+            y = point[1]
+    print(x, y)
+
+
 def calc_vanishing_point():
+    vanishing_points = []
     title = "title"
     cv2.namedWindow(title, cv2.WINDOW_FREERATIO)
     cv2.setMouseCallback(title, click_frame)
@@ -57,15 +69,22 @@ def calc_vanishing_point():
                 i = 0
             if len(clicked_points) == 4:
                 if len(points) == 2:
-                    intercept = np.cross(points[0], points[1])
-                    intercept = intercept / intercept[2]
-                    cv2.circle(img, (int(intercept[0]), int(intercept[1])), 4, (0, 255, 0), 2)
+                    vanishing_point = np.cross(points[0], points[1])
+                    vanishing_point = vanishing_point / vanishing_point[2]
+                    cv2.circle(img, (int(vanishing_point[0]), int(vanishing_point[1])), 4, (0, 255, 0), 2)
+                    vanishing_points.append(vanishing_point)
         cv2.imshow(title, img)
+        if len(vanishing_points) == 2:
+            print('lol')
         if cv2.waitKey(10) == ord('q'):
             break
+        print(vanishing_points)
+        # get_window_frame(vanishing_points)
+    return vanishing_points
 
 
 calc_vanishing_point()
+cv2.destroyAllWindows()
 # TODO Implement callback function that contains the whole process
 
 # TODO Create a large image that contains the vanishing points
