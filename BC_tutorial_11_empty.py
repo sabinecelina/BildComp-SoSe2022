@@ -3,21 +3,45 @@ import cv2
 import numpy as np
 
 
-# TODO Define  a function to compute a fraction given as string
+# Define a function to compute a fraction given as string
 
-# TODO Open an jpg image file in order to read out the exif data
+def get_fraction(text):
+    split = text.split('/')
+    num_one = 0
+    num_two = 0
+    try:
+        num_one = float(split[0])
+        num_two = float(split[1])
+    except Exception as e:
+        print(e, ": der String kann nicht in einen Bruch konvertiert werden")
+    return num_one / num_two
 
-# TODO Get all Exif tags
 
-# TODO Read the EXIF FocalLength tag and compute the value from it
+# Open an jpg image file in order to read out the exif data
+file_name = 'images/720dgree_one.jpg'
+# The "rb" mode opens the file in binary format for reading
+f = open(file_name, 'rb')
 
-# TODO print the computed focal length as float value
+# Get all Exif tags
+tags = exifread.process_file(f, details=False)
 
-# TODO Close the file
+# Read the EXIF FocalLength tag and compute the value from it
+for tag in tags:
+    if tag in 'EXIF FocalLength':
+        print("tag", tag)
+        print("Key:", tag, "value:", tags[tag])
+        focalLength_mm = get_fraction(tags[tag].__str__())
+        # print the computed focal length as float value
+        print("focalLength in mm: ", focalLength_mm)
 
-# TODO Read the file as an OpenCV image
+# Close the file
+f.close()
 
-# TODO Extract image resolution
+# Read the file as an OpenCV image
+img = cv2.imread(file_name, cv2.IMREAD_COLOR)
+
+# Extract image resolution
+width, height, _ = img.shape
 
 # TODO Compute fx, fy, cx, cy using sensor size information as proposed here:
 # http://phototour.cs.washington.edu/focal.html
