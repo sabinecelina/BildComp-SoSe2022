@@ -36,7 +36,7 @@ stereo = cv2.StereoSGBM_create(minDisparity=minDisparity,
 # Calculate disparity using the chosen stereo algorithm
 disp = stereo.compute(imgL, imgR).astype(np.float32)
 
-# Normalie the disparity map in order to display it
+# Normalize the disparity map in order to display it
 disp = cv2.normalize(disp, 0, 255, cv2.NORM_MINMAX)
 
 # Display the disparity map
