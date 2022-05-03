@@ -3,18 +3,24 @@
 # and https://learnopencv.com/introduction-to-epipolar-geometry-and-stereo-vision/
 import cv2
 import numpy as np
-
-# TODO Reading the left and right images.
-
-
-# TODO Set parameters needed for stereo matching
+from matplotlib import pyplot as plt
 
 
-# TODO Create a stereo computation object using StereoBM_create or StereoSGBM_create
+# Reading the left and right images.
+img_left = cv2.imread('images/tsukuba01.jpg', cv2.IMREAD_GRAYSCALE)
+img_right = img = cv2.imread('images/tsukuba02.jpg', cv2.IMREAD_GRAYSCALE)
 
-# TODO Calculate disparity using the chosen stereo algorithm
 
+#  Set parameters needed for stereo matching
+# Create a stereo computation object using StereoBM_create or StereoSGBM_create
+stereo = cv2.StereoBM_create(numDisparities=64, blockSize=9)
 
-# TODO Normalize the disparity map in order to display it
+# Calculate disparity using the chosen stereo algorithm
+disp = stereo.compute(img_left, img_right).astype(np.float32)
 
-# TODO Display the disparity map
+# Normalize the disparity map in order to display it
+disp = cv2.normalize(disp, 0, 255, cv2.NORM_MINMAX)
+
+# Display the disparity map
+cv2.imshow("disparity", disp)
+cv2.waitKey(0)
