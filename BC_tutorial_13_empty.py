@@ -11,7 +11,7 @@ shrink_factor = 2  # decrease image size by this factor
 title = "Dynamic programming"  # window title
 visualize_energy = True  # set true in order to visualize the energy images once
 
-img = cv2.resize(img, (0, 0), fx=1/shrink_factor, fy=1/shrink_factor)
+img = cv2.resize(img, (0, 0), fx=1 / shrink_factor, fy=1 / shrink_factor)
 rows, cols = img.shape
 
 
@@ -19,9 +19,19 @@ def calculateEnergySobel(img):
     return np.abs(cv2.Sobel(img, cv2.CV_32FC1, 1, 1, borderType=cv2.BORDER_REPLICATE))
 
 
-# TODO compute accumulated energy image
+# compute accumulated energy image
 def calculateAccumulatedImage(_img):
-    
+    img_copy = _img.copy()
+    rows, cols = _img.shape
+    for row in range(rows-1):
+        for col in range(cols):
+            if col == 0:
+                img_copy[row + 1, col] += min(img_copy[row, col], img_copy[row, col + 1])
+            elif col == cols - 1:
+                img_copy[row + 1, col] += min(img_copy[row, col], img_copy[row, col - 1])
+            else:
+                img_copy[row + 1, col] += min(img_copy[row, col - 1], img_copy[row, col], img_copy[row, col + 1])
+    return img_copy
 
 
 # remove all seams until the last ten in a loop
@@ -42,30 +52,51 @@ for i in range(cols - 10):
 
     if visualize_energy:
         normalized_acc_energy = np.zeros(acc_energy.shape, np.uint8)
-        normalized_acc_energy = cv2.normalize(acc_energy, normalized_acc_energy, 0, 255, cv2.NORM_MINMAX, cv2.CV_8UC1)
+        normalized_acc_energy = cv2.normalize(acc_energy, normalized_acc_energy, 0, 255, cv2.NORM_MINMAX,
+                                              cv2.CV_8UC1)
 
         cv2.imshow(title, normalized_acc_energy)
         cv2.waitKey(0)
         visualize_energy = False
 
-    # TODO find path with minimal energy from bottom to top
-    # HINT init data structures (exemplary)
     min_path = np.zeros(img.shape, np.bool8)  # an image with the seam
     seam = [0] * rows  # an array with the seam column indices
+    # HINT init data structures (exemplary)
+    c = np.argmin(acc_energy[rows-1, :])
+    min_path[rows-1, c] = True
+    seam[rows-1] = c
+
+    # find path with minimal energy from bottom to top
+    for r in range(rows-2, -1, -1):
+        if c == 0:
+            c = np.argmin(acc_energy[r, c:c + 2])
+        elif c == cols-1:
+            c = c - (1 - np.argmin(acc_energy[r, c-1:c+1]))
+        else:
+            c = c + (np.argmin(acc_energy[r, c-1:c+2]) - 1)
+        min_path[r, c] = True
+        seam[r] = c
+
     # HINT find pixel/column with minimal accumulated energy in last row
-    
+
     # HINT find connected path with min accumulated energy
     # the path upwards has only up to three possible directions: up-left, up, up-right
-    
 
-    # TODO show path in img
-    
+    # show path in img
+    # show path in img in blue
+    img_color = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+    img_color[min_path, :] = (255, 0, 0)
+    cv2.imshow(title, img_color)
+    cv2.waitKey(delay)
+
     # remove path
     new_img = np.array([np.delete(img[row], seam[row], axis=0) for row in range(rows)])
-    
+    cv2.imshow(title, new_img)
+    key = cv2.waitKey(delay)
 
     # allow the user to abort by pressing q
-    
+    if key == ord('q'):
+        break
 
     # set the new image to be the next image
     img = new_img
